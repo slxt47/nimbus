@@ -339,7 +339,18 @@
   $('nochmal').addEventListener('click', () => laden(true));
 
   // ---------------------------------------------------------------- Start
+  // Umschalter Uhr ⇄ Wetter: Ort (und über wechsel.js den Modus) mitnehmen
+  const wechsel = window.slxtWechsel;
+  const wechselLink = (e) => { if (wechsel) e.currentTarget.href = wechsel.link(e.currentTarget.dataset.wechsel, ort); };
+  document.querySelectorAll('[data-wechsel]').forEach((l) => ['pointerdown', 'focus', 'click'].forEach((t) => l.addEventListener(t, wechselLink)));
+
   async function start() {
+    if (wechsel && wechsel.ort) {   // von der Uhr herübergekommen: Ort übernehmen und merken
+      ort = { name: wechsel.ort.name, lat: wechsel.ort.lat, lon: wechsel.ort.lon, zusatz: '', zone: wechsel.ort.zone };
+      schreiben(SPEICHER.ort, ort);
+      wechsel.aufraeumen(); ortZeigen(); laden(); return;
+    }
+    if (wechsel) wechsel.aufraeumen();
     if (ortAusUrl) {
       try {
         const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${new URLSearchParams({ name: ortAusUrl, count: '1', language: 'de', format: 'json' })}`);

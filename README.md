@@ -52,6 +52,14 @@ Die Anfragen stellt der Browser selbst. Der Server liefert nur die Dateien aus u
 - Ort-Fenster: Fokus bleibt im Fenster, `Esc` schließt, Fokus geht zurück zum Knopf.
 - „Bewegung reduzieren“, „Transparenz reduzieren“ und „Kontrast erhöhen“ werden beachtet.
 
+## Uhr ⇄ Wetter
+
+Zenit (Uhr, time.slxt.org) und Nimbus (Wetter, weather.slxt.org) sind zwei Bereiche einer App. Oben sitzt auf beiden
+Seiten derselbe Umschalter **Uhr | Wetter** (wie eine Tab-Leiste nach Apple HIG, am Handy nur Text). Beim Wechsel
+kommen der gewählte Ort und Hell/Dunkel mit: `wechsel.js` (gleiche Datei in beiden Repos) hängt
+`?lat=&lon=&name=&zone=&modus=` an, die andere Seite übernimmt Ort und Modus, speichert den Ort und nimmt die Parameter
+wieder aus der Adresse.
+
 ## Aufbau
 
 Keine Bibliotheken, kein Build:
@@ -62,6 +70,7 @@ Keine Bibliotheken, kein Build:
 | `nimbus.js` | Daten laden, Cache, Symbole (eigene SVGs), Darstellung, Ortssuche |
 | `nimbus.css` | Aussehen (Farben wie `slxt.css`, Glaskarten, hell/dunkel) |
 | `himmel.js` | Sternenhimmel wie auf slxt.dev |
+| `wechsel.js` | Umschalter Uhr ⇄ Wetter: Ort und Modus an die andere Seite übergeben |
 | `modus.js` | Hell/Dunkel-Schalter, nur über `~/bin/modus/verteilen.py` ändern |
 | `logo.svg`, `logo-180.png` | Logo |
 

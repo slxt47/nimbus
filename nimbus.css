@@ -11,6 +11,7 @@
   --akzent: #5b3df5;
   --auf-akzent: #ffffff;
   --akzent-weich: rgba(91, 61, 245, 0.09);
+  --wahl: #ffffff;
   --regen: #1d5fd6;
   --fehler: #b3261e;
   --bar: rgba(245, 245, 247, 0.72);
@@ -42,6 +43,7 @@
   --akzent: #a993ff;
   --auf-akzent: #0b0b10;
   --akzent-weich: rgba(169, 147, 255, 0.14);
+  --wahl: rgba(255, 255, 255, 0.2);
   --regen: #8cc1ff;
   --fehler: #ff8a80;
   --bar: rgba(8, 9, 24, 0.66);
@@ -288,3 +290,25 @@ body > :is(header, main, footer) { position: relative; z-index: 1; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* Umschalter Uhr ⇄ Wetter: wie eine Tab-Leiste mit zwei Bereichen (HIG Tab bars), mittig in der Kopfzeile;
+   gewählt = helle Fläche wie ein Segment. Gleich gebaut wie auf Zenit, damit es sich wie eine App anfühlt. */
+.ansichten {
+  display: flex; gap: 2px; padding: 3px; border: 1px solid var(--linie); border-radius: 999px; background: var(--karte);
+}
+.ansichten a {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 16px; border-radius: 999px;
+  color: var(--text); font-size: 0.9375rem; font-weight: 500; text-decoration: none; transition: background 0.2s ease;
+}
+.ansichten a:hover { background: var(--feld); }
+.ansichten a[aria-current='page'] { background: var(--wahl); font-weight: 600; box-shadow: 0 1px 4px rgba(10, 14, 40, 0.18); }
+@media (min-width: 700px) { .top .wrap { position: relative; } .ansichten { position: absolute; left: 50%; transform: translateX(-50%); } }
+@media (max-width: 699px) {
+  .brand { display: none; }   /* wie Zenit: am Handy führt der Umschalter, das Logo steckt im App-Symbol */
+  .top .wrap { gap: 6px; }
+  .ansichten { margin-right: auto; }
+  .ort-knopf { max-width: 30vw; padding: 0 12px; }
+}
+@media (max-width: 440px) { .ansichten a { padding: 0 14px; } .ansichten svg { display: none; } }
+@media (max-width: 380px) { .ort-knopf { max-width: 27vw; } }
+@media (prefers-reduced-motion: reduce) { .ansichten a { transition: none; } }
