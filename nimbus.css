@@ -294,15 +294,25 @@ body > :is(header, main, footer) { position: relative; z-index: 1; }
 /* Umschalter Uhr ⇄ Wetter: wie eine Tab-Leiste mit zwei Bereichen (HIG Tab bars), mittig in der Kopfzeile;
    gewählt = helle Fläche wie ein Segment. Gleich gebaut wie auf Zenit, damit es sich wie eine App anfühlt. */
 .ansichten {
-  display: flex; gap: 2px; padding: 3px; border: 1px solid var(--linie); border-radius: 999px; background: var(--karte);
+  position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 3px; border: 1px solid var(--linie); border-radius: 999px; background: var(--karte);
 }
 .ansichten a {
-  display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 16px; border-radius: 999px;
+  position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 36px; padding: 0 16px; border-radius: 999px;
   color: var(--text); font-size: 0.9375rem; font-weight: 500; text-decoration: none; transition: background 0.2s ease;
 }
 .ansichten a:hover { background: var(--feld); }
-.ansichten a[aria-current='page'] { background: var(--wahl); font-weight: 600; box-shadow: 0 1px 4px rgba(10, 14, 40, 0.18); }
-@media (min-width: 700px) { .top .wrap { position: relative; } .ansichten { position: absolute; left: 50%; transform: translateX(-50%); } }
+.ansichten a { transition: background .2s ease, color .2s ease; }
+.ansichten[data-aktiv='uhr'] a[data-ziel='uhr'], .ansichten[data-aktiv='wetter'] a[data-ziel='wetter'] { font-weight: 600; }   /* fett folgt der Markierung */
+.ansichten a[aria-current='page']:hover { background: none; }
+/* Markierung als eigene Fläche: gleitet beim Wechsel zum anderen Segment (Segmente gleich breit, HIG) */
+.ansichten::before {
+  content: ''; position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 4px); border-radius: 999px;
+  background: var(--wahl); box-shadow: 0 1px 4px rgba(10, 14, 40, 0.18);
+  transition: transform 0.3s cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.ansichten[data-aktiv='wetter']::before { transform: translateX(calc(100% + 2px)); }
+@media (min-width: 700px) { .top .wrap { position: relative; } .ansichten { position: absolute; left: 50%; translate: -50% 0; } }
 @media (max-width: 699px) {
   .brand { display: none; }   /* wie Zenit: am Handy führt der Umschalter, das Logo steckt im App-Symbol */
   .top .wrap { gap: 6px; }
@@ -312,3 +322,47 @@ body > :is(header, main, footer) { position: relative; z-index: 1; }
 @media (max-width: 440px) { .ansichten a { padding: 0 14px; } .ansichten svg { display: none; } }
 @media (max-width: 380px) { .ort-knopf { max-width: 27vw; } }
 @media (prefers-reduced-motion: reduce) { .ansichten a { transition: none; } }
+
+/* Übergang Uhr ⇄ Wetter (wechsel.js): ausblenden in die Grundfarbe, neue Seite blendet daraus auf */
+:root { --wechsel-farbe: #f4f1fb; }
+:root[data-modus='dunkel'] { --wechsel-farbe: #0b0e2a; }
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: 100; pointer-events: none;
+  background: var(--wechsel-farbe); opacity: 0; transition: opacity 0.24s ease-in;
+}
+html.wechsel-aus body::after { opacity: 1; }
+html.wechsel-ein body::after { animation: wechsel-ein 0.5s ease-out 0.05s both; }
+@keyframes wechsel-ein { from { opacity: 1; } to { opacity: 0; } }
+
+/* Beim Laden: Kopf blendet auf; sobald Daten da sind, erscheinen die Module nacheinander (einmal pro Seitenaufruf) */
+.held { animation: auftauchen 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+main.bereit > section:not(.held) { animation: auftauchen 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+main.bereit > section:nth-of-type(3) { animation-delay: 0.06s; }
+main.bereit > section:nth-of-type(4) { animation-delay: 0.12s; }
+main:not(.bereit) > section:not(.held) { opacity: 0; }
+@keyframes auftauchen { from { opacity: 0; translate: 0 10px; } }
+
+/* Tageszeilen klappen weich auf (wo der Browser Höhe „auto“ animieren kann) */
+@supports (interpolate-size: allow-keywords) {
+  :root { interpolate-size: allow-keywords; }
+  .tage details::details-content {
+    block-size: 0; overflow: clip;
+    transition: block-size 0.3s cubic-bezier(0.3, 0.7, 0.2, 1), content-visibility 0.3s allow-discrete;
+  }
+  .tage details[open]::details-content { block-size: auto; }
+}
+
+/* Ort-Fenster und Schleier blenden ein */
+.fenster { transition: opacity 0.2s ease, translate 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.schleier { transition: opacity 0.2s ease; }
+@starting-style { .fenster { opacity: 0; translate: 0 -6px; } .schleier { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ansichten::before, .fenster, .schleier, .tage details::details-content { transition: none; }
+  .held, main.bereit > section, html.wechsel-ein body::after { animation: none; }
+}
+/* Kopfzeile bleibt beim Wechsel über dem Schleier (wie bei Zenit): nur der Inhalt wechselt */
+html.wechsel-aus .top,
+html.wechsel-ein .top {
+  z-index: 101;
+}

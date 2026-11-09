@@ -140,7 +140,7 @@
         : 'Das Wetter konnte gerade nicht geladen werden.';
       $('fehler').hidden = false;
       if (cache && cache.schluessel === schluessel) zeichnen(cache.daten, cache.zeit);
-      else $('jetzt').setAttribute('aria-busy', 'false');
+      else { $('jetzt').setAttribute('aria-busy', 'false'); document.querySelector('main').classList.add('bereit'); }
     }
   }
 
@@ -267,6 +267,7 @@
       tage.append(li);
     });
 
+    document.querySelector('main').classList.add('bereit');   // Module einmal nacheinander einblenden
     const stand = new Date(zeit).toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
     $('stand').textContent = ` · Stand ${stand}`;
   }
