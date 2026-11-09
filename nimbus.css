@@ -254,9 +254,6 @@ main > * { min-width: 0; }
 
 /* Fußzeile */
 .foot { margin-top: 24px; padding: 20px 0 calc(24px + env(safe-area-inset-bottom)); border-top: 1px solid var(--linie); color: var(--text-2); font-size: 0.875rem; }
-.foot .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 24px; }
-.foot nav { display: flex; flex-wrap: wrap; gap: 4px 18px; }
-.foot a { color: var(--text-2); }
 
 /* Himmel wie auf slxt.dev (himmel.js baut die Ebenen; Sterne nur im Dunkeln) */
 .himmel { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: linear-gradient(180deg, var(--sky1), var(--sky2) 55%, var(--sky3)); }
@@ -366,3 +363,20 @@ html.wechsel-aus .top,
 html.wechsel-ein .top {
   z-index: 101;
 }
+
+/* Fußzeile – auf Zenit und Nimbus gleich: Pillen-Knöpfe für Quellen und slxt.org, rechts der Stand */
+.fuss-leiste { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+.pillen { display: flex; flex-wrap: wrap; gap: 6px; }
+.pille {
+  display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0 12px; border-radius: 999px;
+  border: 1px solid var(--linie); background: var(--karte); color: var(--text); font-size: .8125rem; font-weight: 500; text-decoration: none;
+  transition: background .2s ease, transform .15s ease;
+}
+.pille:hover { background: var(--akzent-weich); text-decoration: none; }
+.pille:active { transform: scale(.96); }
+.pille:focus-visible { outline: 3px solid var(--akzent); outline-offset: 2px; }
+.pille svg { flex: none; color: var(--text-2); }
+.stand { color: var(--text-2); font-size: .8125rem; font-variant-numeric: tabular-nums; }
+.stand:empty { display: none; }
+@media (prefers-contrast: more) { .pille { outline: 1px solid currentColor; } .stand, .pille svg { color: var(--text); } }
+@media (prefers-reduced-motion: reduce) { .pille { transition: none; } }

@@ -268,8 +268,8 @@
     });
 
     document.querySelector('main').classList.add('bereit');   // Module einmal nacheinander einblenden
-    const stand = new Date(zeit).toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
-    $('stand').textContent = ` · Stand ${stand}`;
+    // Stand = Messzeit von Open-Meteo in Ortszeit (wie bei Zenit), nicht die Ladezeit im Browser
+    $('stand').textContent = `Stand ${uhrzeit(c.time)}`;
   }
 
   // ---------------------------------------------------------------- Ort-Fenster
