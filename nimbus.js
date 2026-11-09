@@ -1,4 +1,4 @@
-// Wetter (weather.slxt.org): jetzt, 24 Stunden und 14 Tage für einen Ort. Daten von Open-Meteo, direkt aus dem Browser.
+// Nimbus (weather.slxt.org, bis 09.11.2026 „Wetter“): jetzt, 24 Stunden und 14 Tage für einen Ort. Daten von Open-Meteo, direkt aus dem Browser.
 // Kein Server-Teil, keine Schlüssel, keine Cookies. Ort und 10-Minuten-Cache bleiben im localStorage.
 // Testen: ?ort=Wien (wird nicht gespeichert).
 (() => {
@@ -6,7 +6,7 @@
   const $ = (id) => document.getElementById(id);
   const GRAZ = { name: 'Graz', lat: 47.0707, lon: 15.4395, zusatz: 'Steiermark, Österreich' };
   const CACHE_MS = 10 * 60 * 1000;
-  const SPEICHER = { ort: 'wetter:ort', daten: 'wetter:daten' };
+  const SPEICHER = { ort: 'wetter:ort', daten: 'wetter:daten' };   // Schlüssel aus der Zeit vor dem Namen „Nimbus“: gespeicherte Orte bleiben
 
   const lesen = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
   const schreiben = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* privat/gesperrt */ } };
@@ -98,7 +98,7 @@
     $('ort-name').textContent = ort.name;
     $('ort-jetzt').textContent = ort.name;
     $('ort-titel-h1').textContent = ort.name;
-    document.title = `Wetter ${ort.name} – 14 Tage Prognose`;
+    document.title = `Nimbus · ${ort.name} – Wetter und 14 Tage`;
   }
 
   // ---------------------------------------------------------------- Daten

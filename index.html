@@ -3,25 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Wetter – 14 Tage Prognose</title>
-  <meta name="description" content="Wetter für deinen Ort: jetzt, die nächsten 24 Stunden und 14 Tage im Voraus. Ohne Werbung, ohne Cookies.">
+  <title>Nimbus – Wetter und 14 Tage Prognose</title>
+  <meta name="description" content="Nimbus: das Wetter für deinen Ort – jetzt, die nächsten 24 Stunden und 14 Tage im Voraus. Ohne Werbung, ohne Cookies.">
   <meta name="color-scheme" content="dark light">
   <meta name="theme-color" content="#0b0e2a">
-  <meta name="apple-mobile-web-app-title" content="Wetter">
+  <meta name="apple-mobile-web-app-title" content="Nimbus">
   <!-- Hell/Dunkel wie alle slxt-Seiten (Standard dunkel). modus.js nur über ~/bin/modus/verteilen.py ändern. -->
   <script src="./modus.js?v=5"></script>
   <link rel="icon" href="./logo.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./logo-180.png">
-  <link rel="stylesheet" href="./wetter.css?v=6">
+  <link rel="stylesheet" href="./nimbus.css?v=7">
   <script src="./himmel.js?v=1" defer></script>
-  <script src="./wetter.js?v=2" defer></script>
+  <script src="./nimbus.js?v=3" defer></script>
 </head>
 <body>
   <a class="skip" href="#inhalt">Zum Inhalt springen</a>
 
   <header class="top">
     <div class="wrap">
-      <a class="brand" href="./"><img src="./logo.svg" alt="" width="28" height="28">Wetter</a>
+      <a class="brand" href="./"><img src="./logo.svg" alt="" width="28" height="28">Nimbus</a>
       <button type="button" class="knopf ort-knopf" id="ort-knopf" aria-haspopup="dialog" aria-controls="ort-fenster" aria-expanded="false">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
         <span class="sr-only">Ort ändern, jetzt: </span><span id="ort-name">Graz</span>
@@ -31,7 +31,7 @@
   </header>
 
   <main id="inhalt" class="wrap">
-    <h1 class="sr-only">Wetter für <span id="ort-titel-h1">Graz</span></h1>
+    <h1 class="sr-only">Nimbus – Wetter für <span id="ort-titel-h1">Graz</span></h1>
 
     <p id="fehler" class="fehler" role="alert" hidden>
       <span id="fehler-text">Das Wetter konnte nicht geladen werden.</span>

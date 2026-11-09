@@ -1,4 +1,7 @@
-# Wetter
+# Nimbus
+
+Das Wetter für einen Ort (bis 09.11.2026 hieß die Seite „Wetter“). Der Name: Nimbus ist die Regenwolke, passend zur
+Schwester-Seite [Zenit](https://time.slxt.org), die den Himmel selbst zeigt.
 
 Wetter für einen Ort: jetzt, die nächsten 24 Stunden und 14 Tage im Voraus, im slxt-Design.
 Live: **https://weather.slxt.org**
@@ -26,9 +29,9 @@ Die Anfragen stellt der Browser selbst. Der Server liefert nur die Dateien aus u
 ## Aktualisierung und Cache
 
 - Alle 10 Minuten neu, außerdem sofort, wenn der Tab wieder sichtbar wird oder das Netz zurückkommt.
-- Beim Neuladen kommen die Daten aus dem `localStorage` (10 Minuten gültig). Unten steht „Stand hh:mm“.
+- Beim Neuladen kommen die Daten aus dem `localStorage` (Schlüssel `wetter:ort`, `wetter:daten` aus der Zeit vor dem neuen Namen; 10 Minuten gültig). Unten steht „Stand hh:mm“.
 - Klappt das Laden nicht, zeigt die Seite eine Meldung mit „Nochmal versuchen“ und, wenn vorhanden, die letzten Daten.
-- `wetter.js` und `wetter.css` tragen eine Version (`?v=`) und werden 1 Jahr gecacht. Nach Änderungen die Nummer in
+- `nimbus.js` und `nimbus.css` tragen eine Version (`?v=`) und werden 1 Jahr gecacht. Nach Änderungen die Nummer in
   `index.html` hochzählen.
 
 ## Ausprobieren
@@ -52,11 +55,11 @@ Keine Bibliotheken, kein Build:
 | Datei | Inhalt |
 |---|---|
 | `index.html` | Seite, Ort-Fenster |
-| `wetter.js` | Daten laden, Cache, Symbole (eigene SVGs), Darstellung, Ortssuche |
-| `wetter.css` | Aussehen (Farben wie `slxt.css`, Glaskarten, hell/dunkel) |
+| `nimbus.js` | Daten laden, Cache, Symbole (eigene SVGs), Darstellung, Ortssuche |
+| `nimbus.css` | Aussehen (Farben wie `slxt.css`, Glaskarten, hell/dunkel) |
 | `himmel.js` | Sternenhimmel wie auf slxt.dev |
 | `modus.js` | Hell/Dunkel-Schalter, nur über `~/bin/modus/verteilen.py` ändern |
 | `logo.svg`, `logo-180.png` | Logo |
 
-Betrieb: nginx-Container `wetter` (`~/compose/wetter`, 127.0.0.1:94, gehärtet, Rate-Limit pro Besucher, CSP nur für
-Open-Meteo). Öffentlich über den Cloudflare-Tunnel, Einrichtung mit `sudo python3 ~/compose/wetter/veroeffentlichen.py`.
+Betrieb: nginx-Container `nimbus` (`~/compose/nimbus`, 127.0.0.1:94, gehärtet, Rate-Limit pro Besucher, CSP nur für
+Open-Meteo). Öffentlich über den Cloudflare-Tunnel, Einrichtung mit `sudo python3 ~/compose/nimbus/veroeffentlichen.py`.

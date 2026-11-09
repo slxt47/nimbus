@@ -1,4 +1,4 @@
-/* Wetter (weather.slxt.org) im slxt-Design wie slxt.org und slxt.dev: Himmel, Glaskarten, Standard dunkel.
+/* Nimbus (weather.slxt.org, bis 09.11.2026 „Wetter“) im slxt-Design wie slxt.org und slxt.dev: Himmel, Glaskarten, Standard dunkel.
    Hell/Dunkel über modus.js und data-modus. Farben wie slxt.css, Text mindestens 4,5:1 auf den Karten. */
 :root {
   --bg: #f4f1fb;

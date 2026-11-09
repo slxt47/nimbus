@@ -1,4 +1,4 @@
-# Wetter (weather.slxt.org) – nur eine Seite, nichts zu crawlen außer der Startseite
+# Nimbus (weather.slxt.org) – nur eine Seite, nichts zu crawlen außer der Startseite
 User-agent: *
 Allow: /$
 Disallow: /
