@@ -1,0 +1,264 @@
+/* Wetter (weather.slxt.org) im slxt-Design wie slxt.org und slxt.dev: Himmel, Glaskarten, Standard dunkel.
+   Hell/Dunkel über modus.js und data-modus. Farben wie slxt.css, Text mindestens 4,5:1 auf den Karten. */
+:root {
+  --bg: #f4f1fb;
+  --karte: rgba(255, 255, 255, 0.86);
+  --karte-fest: #ffffff;
+  --feld: rgba(30, 20, 60, 0.05);
+  --linie: rgba(30, 20, 60, 0.1);
+  --text: #1d1d1f;
+  --text-2: #54546a;
+  --akzent: #5b3df5;
+  --auf-akzent: #ffffff;
+  --akzent-weich: rgba(91, 61, 245, 0.09);
+  --regen: #1d5fd6;
+  --fehler: #b3261e;
+  --bar: rgba(245, 245, 247, 0.72);
+  --schatten: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 28px rgba(0, 0, 0, 0.06);
+  --sky1: #dfe5ff;
+  --sky2: #efe3f8;
+  --sky3: #fde7da;
+  --meteor: 124, 92, 255;
+  --stars: 0;
+  --aurora-a: rgba(124, 92, 255, 0.22);
+  --aurora-b: rgba(59, 130, 246, 0.18);
+  --aurora-c: rgba(255, 140, 190, 0.12);
+  --wolke: #c9cfe3;
+  --wolke-dunkel: #8d95b3;
+  --radius: 22px;
+  --schrift: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --anzeige: ui-rounded, -apple-system, BlinkMacSystemFont, 'SF Pro Rounded', 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  color-scheme: light;
+}
+:root[data-modus='dunkel'] {
+  color-scheme: dark;
+  --bg: #0b0e2a;
+  --karte: rgba(22, 22, 40, 0.8);
+  --karte-fest: #17171e;
+  --feld: rgba(255, 255, 255, 0.06);
+  --linie: rgba(255, 255, 255, 0.1);
+  --text: #f2f2f7;
+  --text-2: #aeb0c8;
+  --akzent: #a993ff;
+  --auf-akzent: #0b0b10;
+  --akzent-weich: rgba(169, 147, 255, 0.14);
+  --regen: #8cc1ff;
+  --fehler: #ff8a80;
+  --bar: rgba(8, 9, 24, 0.66);
+  --schatten: 0 0 0 1px var(--linie);
+  --sky1: #04050d;
+  --sky2: #0b0e2a;
+  --sky3: #1a1240;
+  --meteor: 190, 215, 255;
+  --stars: 1;
+  --aurora-a: rgba(124, 92, 255, 0.2);
+  --aurora-b: rgba(59, 130, 246, 0.14);
+  --aurora-c: rgba(190, 80, 255, 0.1);
+  --wolke: #dfe4f7;
+  --wolke-dunkel: #9aa3c4;
+}
+@media (prefers-contrast: more) {
+  :root { --text-2: var(--text); --linie: currentColor; }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 72px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 1rem/1.5 var(--schrift);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--akzent); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--akzent); outline-offset: 3px; border-radius: 8px; }
+h1, h2, h3 { margin: 0; font-family: var(--anzeige); letter-spacing: -0.02em; line-height: 1.2; }
+p { margin: 0; }
+[hidden] { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: 16px; top: -60px; z-index: 30; padding: 10px 14px; border-radius: 12px; background: var(--karte-fest); }
+.skip:focus { top: 12px; }
+.wrap { width: min(980px, 100% - 32px); margin: 0 auto; }
+.klein { color: var(--text-2); font-size: 0.875rem; }
+
+/* Kopfzeile */
+.top {
+  position: sticky; top: 0; z-index: 10;
+  padding-top: env(safe-area-inset-top);
+  border-bottom: 1px solid var(--linie);
+  background: var(--bar);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+.top .wrap { display: flex; align-items: center; gap: 10px; min-height: 56px; }
+.brand { display: inline-flex; align-items: center; gap: 8px; margin-right: auto; color: var(--text); font: 600 1.0625rem var(--anzeige); text-decoration: none; }
+.brand img { border-radius: 7px; }
+
+/* Knöpfe */
+.knopf {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 16px;
+  border: 1px solid var(--linie); border-radius: 999px;
+  background: var(--karte); color: var(--text);
+  font: 600 0.9375rem var(--schrift); cursor: pointer;
+}
+.knopf:hover { background: var(--akzent-weich); }
+.knopf.voll { border-color: transparent; background: var(--akzent); color: var(--auf-akzent); }
+.knopf.rund { width: 44px; padding: 0; }
+.ort-knopf { max-width: 52vw; }
+.ort-knopf span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.modus-knopf {
+  display: grid; flex: none; place-items: center; width: 44px; height: 44px;
+  border: 1px solid var(--linie); border-radius: 999px;
+  background: var(--karte); color: var(--text); cursor: pointer;
+}
+
+/* Karten */
+main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 20px 0 8px; }
+main > * { min-width: 0; }
+.karte {
+  padding: clamp(18px, 4vw, 28px);
+  border: 1px solid var(--linie); border-radius: var(--radius);
+  background: var(--karte); box-shadow: var(--schatten);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .karte, .top, .fenster { background: var(--karte-fest); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+.karte h2 { font-size: 1.25rem; }
+.karte-kopf { display: grid; gap: 4px; margin-bottom: 14px; }
+.eyebrow { color: var(--akzent); font: 700 0.8125rem var(--schrift); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* Jetzt */
+.jetzt-kopf { display: flex; align-items: center; gap: clamp(12px, 4vw, 28px); margin: 10px 0 18px; }
+.temp-gross { font: 300 clamp(4rem, 16vw, 6.5rem) / 1 var(--anzeige); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.temp-gross .einheit { font-size: 0.4em; font-weight: 400; letter-spacing: 0; vertical-align: 0.9em; margin-left: 2px; color: var(--text-2); }
+.beschreibung { margin-top: 6px; font-size: 1.25rem; font-weight: 600; }
+.neben { margin-top: 2px; color: var(--text-2); }
+.werte { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(120px, 100%), 1fr)); gap: 10px; margin: 0; }
+.werte div { padding: 12px 14px; border-radius: 14px; background: var(--feld); }
+.werte dt { color: var(--text-2); font-size: 0.8125rem; }
+.werte dd { margin: 2px 0 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.pfeil { display: inline-block; margin-left: 4px; }
+
+/* Symbole */
+.symbol { display: inline-grid; flex: none; place-items: center; width: 40px; height: 40px; }
+.symbol svg { width: 100%; height: 100%; overflow: visible; }
+.symbol.gross { width: clamp(84px, 22vw, 120px); height: clamp(84px, 22vw, 120px); }
+
+/* Stunden */
+.stunden {
+  display: flex; gap: 6px; margin: 0 -6px; padding: 2px 6px 10px; list-style: none;
+  overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin;
+}
+.stunden li {
+  position: relative; /* hält die .sr-only-Texte in der scrollbaren Leiste */
+  display: grid; flex: none; justify-items: center; gap: 4px; width: 68px; padding: 10px 4px;
+  border-radius: 16px; scroll-snap-align: start; font-variant-numeric: tabular-nums;
+}
+.stunden li.jetzt-h { background: var(--akzent-weich); }
+.stunden .zeit { color: var(--text-2); font-size: 0.8125rem; font-weight: 600; }
+.stunden .t { font-weight: 600; }
+.stunden .r { min-height: 1.2em; color: var(--regen); font-size: 0.8125rem; font-weight: 600; }
+
+/* 14 Tage */
+.tage { display: grid; margin: 0; padding: 0; list-style: none; }
+.tage li {
+  position: relative;
+  display: grid; align-items: center; gap: 4px 12px;
+  grid-template-columns: minmax(84px, 1.1fr) 40px minmax(48px, 0.6fr) 3ch minmax(60px, 2fr) 3ch minmax(64px, 0.8fr);
+  padding: 10px 2px; border-top: 1px solid var(--linie); font-variant-numeric: tabular-nums;
+}
+.tage li:first-child { border-top: 0; }
+.tage li.unsicher-start { margin-top: 10px; border-top: 2px dashed var(--linie); }
+.tage .tag b { display: block; font-weight: 600; }
+.tage .tag small { color: var(--text-2); font-size: 0.8125rem; }
+.tage .r { color: var(--regen); font-size: 0.875rem; font-weight: 600; }
+.tage .min { color: var(--text-2); text-align: right; }
+.tage .max { font-weight: 600; }
+.tage .mehr { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0 10px; color: var(--text-2); font-size: 0.8125rem; line-height: 1.3; }
+.spanne { position: relative; height: 6px; border-radius: 999px; background: var(--feld); }
+.spanne i {
+  position: absolute; top: 0; bottom: 0; border-radius: 999px;
+  background: linear-gradient(90deg, #59a5ff, #7fd1a6 40%, #ffcf5a 70%, #ff8a4c);
+  background-size: var(--breite, 100%) 100%;
+}
+.hinweis-tag { grid-column: 1 / -1; color: var(--text-2); font-size: 0.8125rem; }
+@media (max-width: 620px) {
+  .tage li { grid-template-columns: minmax(96px, 1fr) 32px 3.2ch minmax(36px, 1.4fr) 3.2ch; gap: 4px 8px; }
+  .tage .r, .tage .mehr { grid-column: 1 / -1; text-align: left; }
+  .tage .r { order: 10; }
+  .tage .mehr { order: 11; justify-content: flex-start; }
+  .tage .r:empty { display: none; }
+  .tage .symbol { width: 32px; height: 32px; }
+}
+
+/* Fehler */
+.fehler {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between;
+  padding: 14px 18px; border: 1px solid var(--fehler); border-radius: 16px; background: var(--karte-fest); color: var(--text);
+}
+
+/* Ort-Fenster */
+.schleier { position: fixed; inset: 0; z-index: 19; background: rgba(5, 5, 20, 0.45); }
+.fenster {
+  position: fixed; z-index: 20; top: max(72px, calc(env(safe-area-inset-top) + 64px)); left: 50%;
+  width: min(460px, 100% - 24px); max-height: calc(100dvh - 96px); overflow: auto; transform: translateX(-50%);
+  display: grid; gap: 12px; padding: 18px;
+  border: 1px solid var(--linie); border-radius: var(--radius); background: var(--karte-fest); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+.fenster-kopf { display: flex; align-items: center; justify-content: space-between; }
+.fenster h2 { font-size: 1.125rem; }
+.suche { display: flex; gap: 8px; }
+.suche input {
+  flex: 1; min-width: 0; min-height: 44px; padding: 0 14px;
+  border: 1px solid var(--linie); border-radius: 12px; background: var(--feld); color: var(--text); font: inherit;
+}
+.treffer { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.treffer button {
+  width: 100%; min-height: 44px; padding: 8px 12px; border: 0; border-radius: 12px;
+  background: var(--feld); color: var(--text); font: inherit; text-align: left; cursor: pointer;
+}
+.treffer button:hover { background: var(--akzent-weich); }
+.treffer small { color: var(--text-2); }
+.aktionen { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Fußzeile */
+.foot { margin-top: 24px; padding: 20px 0 calc(24px + env(safe-area-inset-bottom)); border-top: 1px solid var(--linie); color: var(--text-2); font-size: 0.875rem; }
+.foot .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 24px; }
+.foot nav { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.foot a { color: var(--text-2); }
+
+/* Himmel wie auf slxt.dev (himmel.js baut die Ebenen; Sterne nur im Dunkeln) */
+.himmel { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: linear-gradient(180deg, var(--sky1), var(--sky2) 55%, var(--sky3)); }
+.sternlage { position: absolute; top: 0; left: 0; width: 100%; opacity: var(--stars); transition: opacity 0.8s ease; will-change: transform; }
+.sternlage canvas { display: block; width: 100%; }
+.sternlage.fern { opacity: calc(var(--stars) * 0.7); }
+.funkeln, .sternschnuppen { position: absolute; inset: 0; }
+.sternschnuppen { overflow: hidden; }
+.funkeln i {
+  position: absolute; width: var(--g); height: var(--g); border-radius: 50%; background: #fff;
+  box-shadow: 0 0 6px 1px rgba(205, 216, 255, 0.8); opacity: 0.15;
+  animation: funkeln var(--d) ease-in-out var(--v) infinite;
+}
+@keyframes funkeln { 0%, 100% { opacity: 0.12; transform: scale(0.6); } 50% { opacity: 1; transform: scale(1.15); } }
+.meteor {
+  position: absolute; top: 0; left: 0; height: 2px; border-radius: 2px; opacity: 0;
+  background: linear-gradient(90deg, rgba(var(--meteor), 0), rgba(var(--meteor), 0.4) 60%, #fff);
+  transform-origin: 100% 50%; will-change: transform, opacity;
+}
+.aurora { position: absolute; inset: -20vh -20vw auto; height: 110vh; }
+.aurora i { position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%; }
+.aurora i:nth-child(1) { top: -10%; left: 5%; background: radial-gradient(closest-side, var(--aurora-a), transparent); animation: schweben1 26s ease-in-out infinite alternate; }
+.aurora i:nth-child(2) { top: 5%; right: 0; background: radial-gradient(closest-side, var(--aurora-b), transparent); animation: schweben2 32s ease-in-out infinite alternate; }
+.aurora i:nth-child(3) { top: 25%; left: 30%; width: 45vmax; height: 45vmax; background: radial-gradient(closest-side, var(--aurora-c), transparent); animation: schweben3 38s ease-in-out infinite alternate; }
+@keyframes schweben1 { to { transform: translate3d(12vw, 8vh, 0) scale(1.15); } }
+@keyframes schweben2 { to { transform: translate3d(-14vw, 10vh, 0) scale(0.9); } }
+@keyframes schweben3 { to { transform: translate3d(8vw, -10vh, 0) scale(1.2); } }
+body > :is(header, main, footer) { position: relative; z-index: 1; }
+.top { position: sticky; z-index: 10; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

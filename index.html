@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Wetter – 14 Tage Prognose</title>
+  <meta name="description" content="Wetter für deinen Ort: jetzt, die nächsten 24 Stunden und 14 Tage im Voraus. Ohne Werbung, ohne Cookies.">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#0b0e2a">
+  <meta name="apple-mobile-web-app-title" content="Wetter">
+  <!-- Hell/Dunkel wie alle slxt-Seiten (Standard dunkel). modus.js nur über ~/bin/modus/verteilen.py ändern. -->
+  <script src="./modus.js?v=5"></script>
+  <link rel="icon" href="./logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./logo-180.png">
+  <link rel="stylesheet" href="./wetter.css?v=5">
+  <script src="./himmel.js?v=1" defer></script>
+  <script src="./wetter.js?v=1" defer></script>
+</head>
+<body>
+  <a class="skip" href="#inhalt">Zum Inhalt springen</a>
+
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="./"><img src="./logo.svg" alt="" width="28" height="28">Wetter</a>
+      <button type="button" class="knopf ort-knopf" id="ort-knopf" aria-haspopup="dialog" aria-controls="ort-fenster" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+        <span class="sr-only">Ort ändern, jetzt: </span><span id="ort-name">Graz</span>
+      </button>
+      <button type="button" class="modus-knopf" data-modus-schalter></button>
+    </div>
+  </header>
+
+  <main id="inhalt" class="wrap">
+    <h1 class="sr-only">Wetter für <span id="ort-titel-h1">Graz</span></h1>
+
+    <p id="fehler" class="fehler" role="alert" hidden>
+      <span id="fehler-text">Das Wetter konnte nicht geladen werden.</span>
+      <button type="button" class="knopf" id="nochmal">Nochmal versuchen</button>
+    </p>
+
+    <!-- Jetzt -->
+    <section class="karte jetzt" aria-labelledby="jetzt-titel" aria-busy="true" id="jetzt">
+      <h2 id="jetzt-titel" class="eyebrow">Jetzt in <span id="ort-jetzt">Graz</span></h2>
+      <div class="jetzt-kopf">
+        <span class="symbol gross" id="jetzt-symbol" aria-hidden="true"></span>
+        <div>
+          <p class="temp-gross"><span id="jetzt-temp">--</span><span class="einheit">°C</span></p>
+          <p class="beschreibung" id="jetzt-text">Wetter wird geladen …</p>
+          <p class="neben" id="jetzt-neben">&nbsp;</p>
+        </div>
+      </div>
+      <dl class="werte" id="jetzt-werte"></dl>
+    </section>
+
+    <!-- Nächste 24 Stunden -->
+    <section class="karte" aria-labelledby="stunden-titel">
+      <div class="karte-kopf">
+        <h2 id="stunden-titel">Die nächsten 24 Stunden</h2>
+        <p class="klein" id="stunden-hinweis"></p>
+      </div>
+      <ol class="stunden" id="stunden" tabindex="0" aria-label="Stunden, seitlich scrollbar"></ol>
+    </section>
+
+    <!-- 14 Tage -->
+    <section class="karte" aria-labelledby="tage-titel">
+      <div class="karte-kopf">
+        <h2 id="tage-titel">14 Tage</h2>
+        <p class="klein">Tiefst- und Höchstwert, Balken über alle 14 Tage. Ab Tag 8 ist die Prognose unsicherer.</p>
+      </div>
+      <ol class="tage" id="tage"></ol>
+    </section>
+  </main>
+
+  <div id="ort-fenster" class="fenster" hidden role="dialog" aria-modal="true" aria-labelledby="ort-titel">
+    <div class="fenster-kopf">
+      <h2 id="ort-titel">Ort wählen</h2>
+      <button type="button" class="knopf rund" id="ort-zu" aria-label="Schließen">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <form id="ort-suche" class="suche" role="search" autocomplete="off">
+      <label class="sr-only" for="ort-eingabe">Stadt oder Ort</label>
+      <input id="ort-eingabe" type="search" placeholder="Stadt oder Ort, z. B. Wien" maxlength="80" enterkeyhint="search">
+      <button type="submit" class="knopf voll">Suchen</button>
+    </form>
+    <p id="ort-status" class="klein" aria-live="polite"></p>
+    <ul id="ort-treffer" class="treffer"></ul>
+    <div class="aktionen">
+      <button type="button" class="knopf" id="ort-gps">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7.5"/></svg>
+        Mein Standort
+      </button>
+      <button type="button" class="knopf" id="ort-standard">Zurück auf Graz</button>
+    </div>
+    <p class="klein">Der Ort bleibt nur in diesem Browser gespeichert. Wetter und Ortssuche kommen von
+      <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (ohne Konto, ohne Cookies).
+      Dorthin geht nur die Position oder der Suchbegriff. „Mein Standort“ fragt vorher den Browser.</p>
+  </div>
+  <div id="schleier" class="schleier" hidden></div>
+
+  <footer class="foot">
+    <div class="wrap">
+      <span><a href="https://open-meteo.com/" target="_blank" rel="noopener">Wetterdaten: Open-Meteo.com</a> (CC BY 4.0)<span id="stand"></span></span>
+      <nav aria-label="Weitere Seiten">
+        <a href="https://time.slxt.org/">Zenit – der Himmel jetzt</a>
+        <a href="https://slxt.org/">slxt.org</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
