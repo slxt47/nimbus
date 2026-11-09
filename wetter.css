@@ -136,7 +136,8 @@ main > * { min-width: 0; }
 .temp-gross .einheit { font-size: 0.4em; font-weight: 400; letter-spacing: 0; vertical-align: 0.9em; margin-left: 2px; color: var(--text-2); }
 .beschreibung { margin-top: 6px; font-size: 1.25rem; font-weight: 600; }
 .neben { margin-top: 2px; color: var(--text-2); }
-.werte { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(120px, 100%), 1fr)); gap: 10px; margin: 0; }
+.werte { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
+@media (min-width: 700px) { .werte { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .werte div { padding: 12px 14px; border-radius: 14px; background: var(--feld); }
 .werte dt { color: var(--text-2); font-size: 0.8125rem; }
 .werte dd { margin: 2px 0 0; font-weight: 600; font-variant-numeric: tabular-nums; }

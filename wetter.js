@@ -177,14 +177,18 @@
     const stunden = $('stunden');
     stunden.replaceChildren();
     for (let i = start; i < Math.min(start + 25, h.time.length); i++) {
-      const [htext, hart] = code(h.weather_code[i]);
+      // „Jetzt“ zeigt dieselben Werte wie oben (aktuell), nicht die der vollen Stunde.
+      const istJetzt = i === start;
+      const [htext, hart] = code(istJetzt ? c.weather_code : h.weather_code[i]);
+      const temp = istJetzt ? c.temperature_2m : h.temperature_2m[i];
+      const hTag = istJetzt ? c.is_day === 1 : h.is_day[i] === 1;
       const p = h.precipitation_probability[i];
       const li = el('li', i === start ? 'jetzt-h' : '');
       const zeitText = i === start ? 'Jetzt' : uhrzeit(h.time[i]);
       li.innerHTML =
         `<span class="zeit">${zeitText}</span>` +
-        `<span class="symbol" aria-hidden="true">${svg(hart, h.is_day[i] === 1)}</span>` +
-        `<span class="t">${grad(h.temperature_2m[i])}</span>` +
+        `<span class="symbol" aria-hidden="true">${svg(hart, hTag)}</span>` +
+        `<span class="t">${grad(temp)}</span>` +
         `<span class="r">${p >= 10 ? `${p} %` : ''}</span>` +
         `<span class="sr-only">${esc(htext)}${p >= 10 ? `, Regenwahrscheinlichkeit ${p} Prozent` : ''}</span>`;
       stunden.append(li);
