@@ -68,6 +68,7 @@
   const grad = (t) => (t == null ? '–' : `${Math.round(t)}°`);
   const RICHTUNG = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'];
   const RICHTUNG_LANG = ['Nord', 'Nordost', 'Ost', 'Südost', 'Süd', 'Südwest', 'West', 'Nordwest'];
+  const AUS = ['Norden', 'Nordosten', 'Osten', 'Südosten', 'Süden', 'Südwesten', 'Westen', 'Nordwesten'];   // „aus …“
   const richtung = (d) => Math.round(((d % 360) + 360) % 360 / 45) % 8;
   const zahl = (n, stellen = 0) => n.toLocaleString('de-AT', { maximumFractionDigits: stellen, minimumFractionDigits: 0 });
   const uvText = (u) => (u < 3 ? 'niedrig' : u < 6 ? 'mäßig' : u < 8 ? 'hoch' : u < 11 ? 'sehr hoch' : 'extrem');
@@ -96,7 +97,6 @@
 
   function ortZeigen() {
     $('ort-name').textContent = ort.name;
-    $('ort-jetzt').textContent = ort.name;
     $('ort-titel-h1').textContent = ort.name;
     document.title = `Nimbus · ${ort.name} – Wetter und 14 Tage`;
   }
@@ -145,30 +145,65 @@
   }
 
   // ---------------------------------------------------------------- Zeichnen
+  // Kleine Strich-Symbole für die Beschriftungen (wie SF Symbols: eine Strichstärke, Textfarbe)
+  const LS = (pfad) => `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${pfad}</svg>`;
+  const LABEL = {
+    gefuehlt: LS('<path d="M10 14.5V5a2 2 0 1 1 4 0v9.5a4 4 0 1 1-4 0z"/>'),
+    wind: LS('<path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/>'),
+    regen: LS('<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>'),
+    feuchte: LS('<path d="M7 4s4 4.3 4 7.3a4 4 0 0 1-8 0C3 8.3 7 4 7 4zM17 9s4 4.3 4 7.3a4 4 0 0 1-8 0C13 13.3 17 9 17 9z"/>'),
+    uv: LS('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+    sonne: LS('<path d="M4 18h16M7 18a5 5 0 0 1 10 0M12 4v5m-3-2 3-3 3 3"/>'),
+    wolken: LS('<path d="M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5 1.5A3.3 3.3 0 0 0 7 18z"/>'),
+    druck: LS('<circle cx="12" cy="13" r="8"/><path d="M12 13l3.5-3.5M8 5.5 12 5l4 .5"/>'),
+  };
+  const KATEGORIE = { klar: 'klar', teils: 'teils', wolke: 'wolke', nebel: 'nebel', niesel: 'nass', regen: 'nass', starkregen: 'nass', schauer: 'nass', eisregen: 'nass', schnee: 'schnee', gewitter: 'gewitter', hagel: 'gewitter' };
+  const KAT_TEXT = { klar: ['Klar', 'klar'], teils: ['Teils bewölkt', 'teils bewölkt'], wolke: ['Bewölkt', 'bewölkt'], nebel: ['Nebel', 'Nebel'], nass: ['Regen', 'Regen'], schnee: ['Schnee', 'Schnee'], gewitter: ['Gewitter', 'Gewitter'] };
+  const stunde = (s) => Number(s.slice(11, 13));
+
+  // Ein Satz über die nächsten 24 Stunden: „Klar bis 15 Uhr, ab 16 Uhr bewölkt.“
+  function stundenSatz(h, start, jetztCode) {
+    const kat = (i) => KATEGORIE[code(i === start ? jetztCode : h.weather_code[i])[1]];
+    const ende = Math.min(start + 24, h.time.length - 1), k0 = kat(start);
+    let wechsel = -1;
+    for (let i = start + 1; i <= ende; i++) if (kat(i) !== k0) { wechsel = i; break; }
+    if (wechsel < 0) return `${KAT_TEXT[k0][0]} in den nächsten 24 Stunden.`;
+    const k1 = kat(wechsel);
+    const regen = h.precipitation_probability.slice(start, ende + 1).reduce((m, p) => Math.max(m, p ?? 0), 0);
+    const bis = stunde(h.time[wechsel - 1]), ab = stunde(h.time[wechsel]);
+    const satz = wechsel === start + 1 ? `Ab ${ab} Uhr ${KAT_TEXT[k1][1]}.` : `${KAT_TEXT[k0][0]} bis ${bis} Uhr, ab ${ab} Uhr ${KAT_TEXT[k1][1]}.`;
+    return regen >= 30 && k0 !== 'nass' && k1 !== 'nass' ? `${satz} Regen bis ${regen} % wahrscheinlich.` : satz;
+  }
+
   function zeichnen(d, zeit) {
     const c = d.current, h = d.hourly, t = d.daily;
     const [text, art] = code(c.weather_code);
     const tag = c.is_day === 1;
 
-    // Jetzt
+    // Oben: Ort, Temperatur, Lage, Höchst/Tiefst
     $('jetzt-symbol').innerHTML = svg(art, tag);
     $('jetzt-temp').textContent = Math.round(c.temperature_2m);
     $('jetzt-text').textContent = text;
-    $('jetzt-neben').textContent = `Gefühlt ${grad(c.apparent_temperature)} · Heute ${grad(t.temperature_2m_min[0])} bis ${grad(t.temperature_2m_max[0])}`;
-    const r = richtung(c.wind_direction_10m);
-    const werte = [
-      ['Wind', `${zahl(c.wind_speed_10m)} km/h <span class="pfeil" aria-hidden="true">${RICHTUNG[r]}</span><span class="sr-only"> aus ${RICHTUNG_LANG[r]}</span>`],
-      ['Böen', `${zahl(c.wind_gusts_10m)} km/h`],
-      ['Luftfeuchte', `${zahl(c.relative_humidity_2m)} %`],
-      ['Niederschlag', `${zahl(c.precipitation, 1)} mm`],
-      ['Bewölkung', `${zahl(c.cloud_cover)} %`],
-      ['Luftdruck', `${zahl(c.pressure_msl)} hPa`],
-      ['UV heute', `${zahl(t.uv_index_max[0], 1)} (${uvText(t.uv_index_max[0])})`],
-      ['Sonne', `${uhrzeit(t.sunrise[0])} – ${uhrzeit(t.sunset[0])}`],
-    ];
-    const dl = $('jetzt-werte');
-    dl.replaceChildren(...werte.map(([k, v]) => { const div = el('div'); div.append(el('dt', null, esc(k)), el('dd', null, v)); return div; }));
+    $('jetzt-neben').innerHTML = `<span><abbr title="Höchstwert">H</abbr>: ${grad(t.temperature_2m_max[0])}</span><span><abbr title="Tiefstwert">T</abbr>: ${grad(t.temperature_2m_min[0])}</span>`;
     $('jetzt').setAttribute('aria-busy', 'false');
+
+    // Details als Kacheln: Beschriftung mit Symbol, großer Wert, kurze Erklärung
+    const r = richtung(c.wind_direction_10m);
+    const gefuehlt = c.apparent_temperature - c.temperature_2m;
+    const jetztZeit = c.time;
+    const vorUntergang = jetztZeit < t.sunset[0];
+    const kacheln = [
+      ['gefuehlt', 'Gefühlt', grad(c.apparent_temperature), gefuehlt < -1.5 ? 'Wind lässt es kälter wirken.' : gefuehlt > 1.5 ? 'Feuchte lässt es wärmer wirken.' : 'Wie die gemessene Temperatur.'],
+      ['wind', 'Wind', `${zahl(c.wind_speed_10m)} <small>km/h</small>`, `Böen ${zahl(c.wind_gusts_10m)} km/h, aus ${AUS[r]}.`],
+      ['regen', 'Niederschlag', `${zahl(t.precipitation_sum[0], 1)} <small>mm</small>`, (t.precipitation_sum[0] ?? 0) < 0.1 && (t.precipitation_probability_max[0] ?? 0) < 20 ? 'Heute kein Regen erwartet.' : `Heute erwartet, Regen zu ${t.precipitation_probability_max[0] ?? 0} % wahrscheinlich.`],
+      ['feuchte', 'Luftfeuchte', `${zahl(c.relative_humidity_2m)} <small>%</small>`, 'Relative Feuchte jetzt.'],
+      ['uv', 'UV-Index', zahl(t.uv_index_max[0], 1), `Höchstwert heute: ${uvText(t.uv_index_max[0])}.`],
+      ['sonne', vorUntergang ? 'Untergang' : 'Aufgang', vorUntergang ? uhrzeit(t.sunset[0]) : uhrzeit(t.sunrise[1] || t.sunrise[0]), vorUntergang ? `Sonne heute. Aufgang war um ${uhrzeit(t.sunrise[0])}.` : `Sonne morgen. Heute ging sie um ${uhrzeit(t.sunset[0])} unter.`],
+      ['wolken', 'Bewölkung', `${zahl(c.cloud_cover)} <small>%</small>`, c.cloud_cover < 20 ? 'Kaum Wolken.' : c.cloud_cover > 80 ? 'Fast ganz bedeckt.' : 'Teilweise bedeckt.'],
+      ['druck', 'Luftdruck', `${zahl(c.pressure_msl)} <small>hPa</small>`, 'Auf Meereshöhe umgerechnet.'],
+    ];
+    $('jetzt-werte').replaceChildren(...kacheln.map(([sym, name, wert, satz]) => el('li', 'kachel',
+      `<h3 class="modul-titel">${LABEL[sym]}${esc(name)}</h3><p class="kachel-wert">${wert}</p><p class="kachel-satz">${esc(satz)}</p>`)));
 
     // 24 Stunden ab der aktuellen Stunde
     const jetztStunde = c.time.slice(0, 13);
@@ -183,50 +218,52 @@
       const temp = istJetzt ? c.temperature_2m : h.temperature_2m[i];
       const hTag = istJetzt ? c.is_day === 1 : h.is_day[i] === 1;
       const p = h.precipitation_probability[i];
-      const li = el('li', i === start ? 'jetzt-h' : '');
-      const zeitText = i === start ? 'Jetzt' : uhrzeit(h.time[i]);
+      const li = el('li', istJetzt ? 'jetzt-h' : '');
       li.innerHTML =
-        `<span class="zeit">${zeitText}</span>` +
-        `<span class="symbol" aria-hidden="true">${svg(hart, hTag)}</span>` +
+        `<span class="zeit">${istJetzt ? 'Jetzt' : `${stunde(h.time[i])} Uhr`}</span>` +
+        `<span class="symbol-stapel"><span class="symbol" aria-hidden="true">${svg(hart, hTag)}</span><span class="r">${p >= 20 ? `${p} %` : ''}</span></span>` +
         `<span class="t">${grad(temp)}</span>` +
-        `<span class="r">${p >= 10 ? `${p} %` : ''}</span>` +
-        `<span class="sr-only">${esc(htext)}${p >= 10 ? `, Regenwahrscheinlichkeit ${p} Prozent` : ''}</span>`;
+        `<span class="sr-only">${esc(htext)}${p >= 20 ? `, Regenwahrscheinlichkeit ${p} Prozent` : ''}</span>`;
+      li.querySelectorAll('.symbol-stapel, .t').forEach((x) => x.setAttribute('aria-hidden', 'true'));
       stunden.append(li);
     }
-    const regenBald = h.precipitation_probability.slice(start, start + 6).some((p) => p >= 50);
-    $('stunden-hinweis').textContent = regenBald ? 'In den nächsten Stunden ist Regen wahrscheinlich.' : '';
+    $('stunden-hinweis').textContent = stundenSatz(h, start, c.weather_code);
 
-    // 14 Tage
+    // 14 Tage: Zeile zum Aufklappen; Balken über alle 14 Tage, heute mit Punkt für jetzt
     const tiefst = Math.min(...t.temperature_2m_min), hoechst = Math.max(...t.temperature_2m_max);
     const span = Math.max(1, hoechst - tiefst);
+    const pos = (x) => ((x - tiefst) / span) * 100;
     const tage = $('tage');
     tage.replaceChildren();
     t.time.forEach((tagS, i) => {
       const [dtext, dart] = code(t.weather_code[i]);
       const d0 = alsDatum(tagS);
-      const name = i === 0 ? 'Heute' : i === 1 ? 'Morgen' : WOCHENTAG.format(d0);
+      const name = i === 0 ? 'Heute' : i === 1 ? 'Morgen' : WOCHENTAG.format(d0).slice(0, 2);
       const min = t.temperature_2m_min[i], max = t.temperature_2m_max[i];
-      const p = t.precipitation_probability_max[i], mm = t.precipitation_sum[i];
-      const li = el('li', i === 7 ? 'unsicher-start' : '');
-      if (i === 7) li.append(el('span', 'hinweis-tag', 'Ab hier unsicherer'));
-      const links = ((min - tiefst) / span) * 100, breite = Math.max(4, ((max - min) / span) * 100);
-      li.insertAdjacentHTML('beforeend',
-        `<span class="tag"><b>${esc(name)}</b><small>${KURZ.format(d0)}</small></span>` +
-        `<span class="symbol" aria-hidden="true">${svg(dart, true)}</span>` +
-        `<span class="r">${p != null && p >= 10 ? `${p} %` : ''}</span>` +
-        `<span class="min">${grad(min)}</span>` +
-        `<span class="spanne" aria-hidden="true"><i></i></span>` +
-        `<span class="max">${grad(max)}</span>` +
-        `<span class="mehr">${mm >= 0.1 ? `${zahl(mm, 1)} mm` : ''}<span>${zahl(t.wind_speed_10m_max[i])} km/h ${RICHTUNG[richtung(t.wind_direction_10m_dominant[i])]}</span></span>` +
-        `<span class="sr-only">${esc(LANG.format(d0))}: ${esc(dtext)}, ${Math.round(min)} bis ${Math.round(max)} Grad` +
-        `${p != null && p >= 10 ? `, Regenwahrscheinlichkeit ${p} Prozent` : ''}${mm >= 0.1 ? `, ${zahl(mm, 1)} Millimeter` : ''}` +
-        `, Wind bis ${zahl(t.wind_speed_10m_max[i])} Kilometer pro Stunde aus ${RICHTUNG_LANG[richtung(t.wind_direction_10m_dominant[i])]}</span>`);
-      // Sichtbare Teile sind für Screenreader doppelt: verstecken, die Zusammenfassung oben liest alles vor.
-      li.querySelectorAll(':scope > span:not(.sr-only):not(.hinweis-tag)').forEach((s) => s.setAttribute('aria-hidden', 'true'));
+      const p = t.precipitation_probability_max[i] ?? 0, mm = t.precipitation_sum[i];
+      const wr = richtung(t.wind_direction_10m_dominant[i]);
+      if (i === 7) tage.append(el('li', 'trenner', 'Ab hier unsicherer'));
+      const li = el('li', 'tag-zeile');
+      li.innerHTML =
+        `<details><summary>` +
+        `<span class="tag" aria-hidden="true">${esc(name)}<small>${KURZ.format(d0)}</small></span>` +
+        `<span class="symbol-stapel" aria-hidden="true"><span class="symbol">${svg(dart, true)}</span><span class="r">${p >= 20 ? `${p} %` : ''}</span></span>` +
+        `<span class="min" aria-hidden="true">${grad(min)}</span>` +
+        `<span class="spanne" aria-hidden="true"><i></i>${i === 0 ? '<b></b>' : ''}</span>` +
+        `<span class="max" aria-hidden="true">${grad(max)}</span>` +
+        `<svg class="pfeil" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>` +
+        `<span class="sr-only">${esc(i < 2 ? `${name}, ${LANG.format(d0)}` : LANG.format(d0))}: ${esc(dtext)}, ${Math.round(min)} bis ${Math.round(max)} Grad${p >= 20 ? `, Regen zu ${p} Prozent wahrscheinlich` : ''}</span>` +
+        `</summary><dl class="tag-details">` +
+        `<div><dt>${LABEL.regen}Niederschlag</dt><dd>${zahl(mm ?? 0, 1)} mm · ${p} %</dd></div>` +
+        `<div><dt>${LABEL.wind}Wind</dt><dd>bis ${zahl(t.wind_speed_10m_max[i])} km/h, Böen ${zahl(t.wind_gusts_10m_max[i])} km/h, aus ${AUS[wr]}</dd></div>` +
+        `<div><dt>${LABEL.sonne}Sonne</dt><dd>${uhrzeit(t.sunrise[i])} – ${uhrzeit(t.sunset[i])}</dd></div>` +
+        `<div><dt>${LABEL.uv}UV-Index</dt><dd>${zahl(t.uv_index_max[i] ?? 0, 1)} (${uvText(t.uv_index_max[i] ?? 0)})</dd></div>` +
+        `</dl></details>`;
       const balken = li.querySelector('.spanne i');
-      balken.style.left = `${links}%`;
-      balken.style.width = `${Math.min(breite, 100 - links)}%`;
+      balken.style.left = `${pos(min)}%`;
+      balken.style.width = `${Math.max(3, Math.min(pos(max) - pos(min), 100 - pos(min)))}%`;
       balken.style.background = `linear-gradient(90deg, ${farbe(min)}, ${farbe(max)})`;
+      if (i === 0) li.querySelector('.spanne b').style.left = `${Math.min(100, Math.max(0, pos(c.temperature_2m)))}%`;
       tage.append(li);
     });
 

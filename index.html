@@ -12,9 +12,9 @@
   <script src="./modus.js?v=5"></script>
   <link rel="icon" href="./logo.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./logo-180.png">
-  <link rel="stylesheet" href="./nimbus.css?v=7">
+  <link rel="stylesheet" href="./nimbus.css?v=10">
   <script src="./himmel.js?v=1" defer></script>
-  <script src="./nimbus.js?v=3" defer></script>
+  <script src="./nimbus.js?v=5" defer></script>
 </head>
 <body>
   <a class="skip" href="#inhalt">Zum Inhalt springen</a>
@@ -31,43 +31,37 @@
   </header>
 
   <main id="inhalt" class="wrap">
-    <h1 class="sr-only">Nimbus – Wetter für <span id="ort-titel-h1">Graz</span></h1>
+    <!-- Oben: Ort, Temperatur, Lage – direkt auf dem Himmel, wie in der Wetter-App -->
+    <section class="held" id="jetzt" aria-busy="true" aria-labelledby="ort-titel-h1">
+      <h1 id="ort-titel-h1" class="held-ort">Graz</h1>
+      <p class="held-temp"><span id="jetzt-temp">--</span><span aria-hidden="true">°</span><span class="sr-only"> Grad</span></p>
+      <p class="held-lage"><span class="symbol klein" id="jetzt-symbol" aria-hidden="true"></span><span id="jetzt-text">Wetter wird geladen …</span></p>
+      <p class="held-spanne" id="jetzt-neben">&nbsp;</p>
+    </section>
 
     <p id="fehler" class="fehler" role="alert" hidden>
       <span id="fehler-text">Das Wetter konnte nicht geladen werden.</span>
       <button type="button" class="knopf" id="nochmal">Nochmal versuchen</button>
     </p>
 
-    <!-- Jetzt -->
-    <section class="karte jetzt" aria-labelledby="jetzt-titel" aria-busy="true" id="jetzt">
-      <h2 id="jetzt-titel" class="eyebrow">Jetzt in <span id="ort-jetzt">Graz</span></h2>
-      <div class="jetzt-kopf">
-        <span class="symbol gross" id="jetzt-symbol" aria-hidden="true"></span>
-        <div>
-          <p class="temp-gross"><span id="jetzt-temp">--</span><span class="einheit">°C</span></p>
-          <p class="beschreibung" id="jetzt-text">Wetter wird geladen …</p>
-          <p class="neben" id="jetzt-neben">&nbsp;</p>
-        </div>
-      </div>
-      <dl class="werte" id="jetzt-werte"></dl>
-    </section>
-
     <!-- Nächste 24 Stunden -->
-    <section class="karte" aria-labelledby="stunden-titel">
-      <div class="karte-kopf">
-        <h2 id="stunden-titel">Die nächsten 24 Stunden</h2>
-        <p class="klein" id="stunden-hinweis"></p>
-      </div>
+    <section class="modul" aria-labelledby="stunden-titel">
+      <h2 id="stunden-titel" class="modul-titel"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>24 Stunden</h2>
+      <p class="modul-satz" id="stunden-hinweis"></p>
       <ol class="stunden" id="stunden" tabindex="0" aria-label="Stunden, seitlich scrollbar"></ol>
     </section>
 
     <!-- 14 Tage -->
-    <section class="karte" aria-labelledby="tage-titel">
-      <div class="karte-kopf">
-        <h2 id="tage-titel">14 Tage</h2>
-        <p class="klein">Tiefst- und Höchstwert, Balken über alle 14 Tage. Ab Tag 8 ist die Prognose unsicherer.</p>
-      </div>
+    <section class="modul" aria-labelledby="tage-titel">
+      <h2 id="tage-titel" class="modul-titel"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>14 Tage</h2>
       <ol class="tage" id="tage"></ol>
+      <p class="modul-fuss">Tippe auf einen Tag für Regen, Wind, Sonne und UV. Ab Tag 8 ist die Prognose unsicherer.</p>
+    </section>
+
+    <!-- Details zu jetzt -->
+    <section aria-labelledby="details-titel">
+      <h2 id="details-titel" class="sr-only">Details zu jetzt</h2>
+      <ul class="kacheln" id="jetzt-werte"></ul>
     </section>
   </main>
 

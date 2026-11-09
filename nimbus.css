@@ -1,4 +1,4 @@
-/* Nimbus (weather.slxt.org, bis 09.11.2026 „Wetter“) im slxt-Design wie slxt.org und slxt.dev: Himmel, Glaskarten, Standard dunkel.
+/* Nimbus (weather.slxt.org, bis 09.11.2026 „Wetter“) im slxt-Design wie slxt.org und slxt.dev: Himmel, Module wie in der Wetter-App (HIG), Standard dunkel.
    Hell/Dunkel über modus.js und data-modus. Farben wie slxt.css, Text mindestens 4,5:1 auf den Karten. */
 :root {
   --bg: #f4f1fb;
@@ -114,85 +114,110 @@ p { margin: 0; }
   background: var(--karte); color: var(--text); cursor: pointer;
 }
 
-/* Karten */
-main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 20px 0 8px; }
+/* Inhalt */
+main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 8px 0 8px; }
 main > * { min-width: 0; }
-.karte {
-  padding: clamp(18px, 4vw, 28px);
+
+/* Oben: Ort, Temperatur, Lage – direkt auf dem Himmel (kein Kasten), wie in der Wetter-App */
+.held { display: grid; justify-items: center; padding: clamp(20px, 6vw, 44px) 0 clamp(10px, 3vw, 22px); text-align: center; }
+.held-ort { font: 600 clamp(1.75rem, 6vw, 2.25rem) / 1.15 var(--anzeige); letter-spacing: -0.02em; }
+.held-temp {
+  margin-top: 2px; padding-left: .12em;   /* das °-Zeichen gleicht die Mitte aus */
+  font: 300 clamp(5rem, 22vw, 7.5rem) / 1 var(--anzeige); letter-spacing: -0.05em; font-variant-numeric: tabular-nums;
+}
+.held-lage { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 1.25rem; font-weight: 600; }
+.held-spanne { display: flex; gap: 14px; margin-top: 2px; color: var(--text-2); font-size: 1.0625rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+.held-spanne abbr { text-decoration: none; }
+
+/* Module: Material dick genug für Text, Beschriftung klein mit Symbol (wie in der Wetter-App) */
+.modul, .kachel {
   border: 1px solid var(--linie); border-radius: var(--radius);
   background: var(--karte); box-shadow: var(--schatten);
-  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3); backdrop-filter: blur(20px) saturate(1.3);
 }
+.modul { padding: 14px clamp(14px, 3.5vw, 22px) 12px; }
+.modul-titel {
+  display: flex; align-items: center; gap: 6px; margin: 0;
+  color: var(--text-2); font: 600 0.8125rem / 1.3 var(--schrift); letter-spacing: 0.02em; text-transform: uppercase;
+}
+.modul-titel svg { flex: none; }
+.kachel { min-width: 0; }
+.kachel .modul-titel { overflow-wrap: break-word; }
+@media (max-width: 360px) { .kachel .modul-titel svg { display: none; } .kachel { padding: 12px 13px; } }
+.modul-satz { margin: 8px 0 0; padding-bottom: 10px; border-bottom: 1px solid var(--linie); font-size: 0.9375rem; font-weight: 500; }
+.modul-satz:empty { display: none; }
+.modul-fuss { margin-top: 8px; color: var(--text-2); font-size: 0.8125rem; }
 @media (prefers-reduced-transparency: reduce) {
-  .karte, .top, .fenster { background: var(--karte-fest); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .modul, .kachel, .top, .fenster { background: var(--karte-fest); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
-.karte h2 { font-size: 1.25rem; }
-.karte-kopf { display: grid; gap: 4px; margin-bottom: 14px; }
-.eyebrow { color: var(--akzent); font: 700 0.8125rem var(--schrift); letter-spacing: 0.08em; text-transform: uppercase; }
-
-/* Jetzt */
-.jetzt-kopf { display: flex; align-items: center; gap: clamp(12px, 4vw, 28px); margin: 10px 0 18px; }
-.temp-gross { font: 300 clamp(4rem, 16vw, 6.5rem) / 1 var(--anzeige); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
-.temp-gross .einheit { font-size: 0.4em; font-weight: 400; letter-spacing: 0; vertical-align: 0.9em; margin-left: 2px; color: var(--text-2); }
-.beschreibung { margin-top: 6px; font-size: 1.25rem; font-weight: 600; }
-.neben { margin-top: 2px; color: var(--text-2); }
-.werte { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
-@media (min-width: 700px) { .werte { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-.werte div { padding: 12px 14px; border-radius: 14px; background: var(--feld); }
-.werte dt { color: var(--text-2); font-size: 0.8125rem; }
-.werte dd { margin: 2px 0 0; font-weight: 600; font-variant-numeric: tabular-nums; }
-.pfeil { display: inline-block; margin-left: 4px; }
 
 /* Symbole */
-.symbol { display: inline-grid; flex: none; place-items: center; width: 40px; height: 40px; }
+.symbol { display: inline-grid; flex: none; place-items: center; width: 34px; height: 34px; }
 .symbol svg { width: 100%; height: 100%; overflow: visible; }
-.symbol.gross { width: clamp(84px, 22vw, 120px); height: clamp(84px, 22vw, 120px); }
+.symbol.klein { width: 28px; height: 28px; }
+.symbol-stapel { display: grid; justify-items: center; gap: 0; min-width: 40px; }
+.symbol-stapel .r { min-height: 1.1em; color: var(--regen); font-size: 0.75rem; font-weight: 700; line-height: 1.1; }
+.symbol-stapel .r:empty { min-height: 0; }
 
 /* Stunden */
 .stunden {
-  display: flex; gap: 6px; margin: 0 -6px; padding: 2px 6px 10px; list-style: none;
+  display: flex; gap: 2px; margin: 8px -8px 0; padding: 2px 8px 6px; list-style: none;
   overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin;
 }
 .stunden li {
   position: relative; /* hält die .sr-only-Texte in der scrollbaren Leiste */
-  display: grid; flex: none; justify-items: center; gap: 4px; width: 68px; padding: 10px 4px;
-  border-radius: 16px; scroll-snap-align: start; font-variant-numeric: tabular-nums;
+  display: grid; flex: none; justify-items: center; align-content: start; gap: 6px; width: 60px; padding: 8px 2px;
+  border-radius: 14px; scroll-snap-align: start; font-variant-numeric: tabular-nums;
 }
 .stunden li.jetzt-h { background: var(--akzent-weich); }
-.stunden .zeit { color: var(--text-2); font-size: 0.8125rem; font-weight: 600; }
-.stunden .t { font-weight: 600; }
-.stunden .r { min-height: 1.2em; color: var(--regen); font-size: 0.8125rem; font-weight: 600; }
+.stunden .zeit { color: var(--text-2); font-size: 0.8125rem; font-weight: 600; white-space: nowrap; }
+.stunden li.jetzt-h .zeit { color: var(--text); }
+.stunden .t { font-size: 1.0625rem; font-weight: 600; }
 
-/* 14 Tage */
-.tage { display: grid; margin: 0; padding: 0; list-style: none; }
-.tage li {
-  position: relative;
-  display: grid; align-items: center; gap: 4px 12px;
-  grid-template-columns: minmax(84px, 1.1fr) 40px minmax(48px, 0.6fr) 3ch minmax(60px, 2fr) 3ch minmax(64px, 0.8fr);
-  padding: 10px 2px; border-top: 1px solid var(--linie); font-variant-numeric: tabular-nums;
+/* 14 Tage: jede Zeile klappt auf */
+.tage { display: grid; margin: 6px 0 0; padding: 0; list-style: none; }
+.tag-zeile { position: relative; border-top: 1px solid var(--linie); }
+.tag-zeile:first-child { border-top: 0; }
+.tage summary {
+  display: grid; align-items: center; gap: 10px; min-height: 52px; padding: 6px 2px; cursor: pointer; list-style: none;
+  grid-template-columns: 4.6rem 40px 2.6ch minmax(40px, 1fr) 2.6ch 16px; font-variant-numeric: tabular-nums;
+  border-radius: 10px;
 }
-.tage li:first-child { border-top: 0; }
-.tage li.unsicher-start { margin-top: 10px; border-top: 2px dashed var(--linie); }
-.tage .tag b { display: block; font-weight: 600; }
-.tage .tag small { color: var(--text-2); font-size: 0.8125rem; }
-.tage .r { color: var(--regen); font-size: 0.875rem; font-weight: 600; }
-.tage .min { color: var(--text-2); text-align: right; }
-.tage .max { font-weight: 600; }
-.tage .mehr { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0 10px; color: var(--text-2); font-size: 0.8125rem; line-height: 1.3; }
-.spanne { position: relative; height: 6px; border-radius: 999px; background: var(--feld); }
-.spanne i {
-  position: absolute; top: 0; bottom: 0; border-radius: 999px;
-  background: linear-gradient(90deg, #59a5ff, #7fd1a6 40%, #ffcf5a 70%, #ff8a4c);
-  background-size: var(--breite, 100%) 100%;
+.tage summary::-webkit-details-marker { display: none; }
+.tage summary:hover { background: var(--feld); }
+.tage .tag { display: grid; font-size: 1.0625rem; font-weight: 600; line-height: 1.2; }
+.tage .tag small { color: var(--text-2); font-size: 0.75rem; font-weight: 500; }
+.tage .min { color: var(--text-2); font-size: 1.0625rem; font-weight: 500; text-align: right; }
+.tage .max { font-size: 1.0625rem; font-weight: 600; }
+.tage .pfeil { color: var(--text-2); transition: transform 0.2s ease; }
+.tage details[open] .pfeil { transform: rotate(180deg); }
+.spanne { position: relative; height: 5px; border-radius: 999px; background: var(--feld); }
+.spanne i { position: absolute; top: 0; bottom: 0; border-radius: 999px; }
+.spanne b {   /* jetzt: Punkt auf dem heutigen Balken */
+  position: absolute; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%;
+  background: var(--text); box-shadow: 0 0 0 2px var(--karte-fest);
 }
-.hinweis-tag { grid-column: 1 / -1; color: var(--text-2); font-size: 0.8125rem; }
-@media (max-width: 620px) {
-  .tage li { grid-template-columns: minmax(96px, 1fr) 32px 3.2ch minmax(36px, 1.4fr) 3.2ch; gap: 4px 8px; }
-  .tage .r, .tage .mehr { grid-column: 1 / -1; text-align: left; }
-  .tage .r { order: 10; }
-  .tage .mehr { order: 11; justify-content: flex-start; }
-  .tage .r:empty { display: none; }
-  .tage .symbol { width: 32px; height: 32px; }
+.tag-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 8px; margin: 2px 0 12px; }
+.tag-details div { padding: 10px 12px; border-radius: 12px; background: var(--feld); }
+.tag-details dt { display: flex; align-items: center; gap: 6px; color: var(--text-2); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+.tag-details dd { margin: 3px 0 0; font-weight: 600; font-size: 0.9375rem; }
+.tage .trenner {
+  margin-top: 6px; padding: 8px 2px 4px; border-top: 1px dashed var(--linie);
+  color: var(--text-2); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase;
+}
+.trenner + .tag-zeile { border-top: 0; }
+
+/* Details zu jetzt: Kacheln */
+.kacheln { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 700px) { .kacheln { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.kachel { display: grid; align-content: start; gap: 6px; min-height: 132px; padding: 14px 16px; }
+.kachel-wert { font: 500 1.875rem / 1.1 var(--anzeige); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.kachel-wert small { font-size: 0.55em; font-weight: 600; color: var(--text-2); letter-spacing: 0; }
+.kachel-satz { margin-top: auto; color: var(--text-2); font-size: 0.8125rem; line-height: 1.35; }
+
+@media (max-width: 420px) {
+  .tage summary { grid-template-columns: 3.6rem 36px 2.6ch minmax(32px, 1fr) 2.6ch 14px; gap: 8px; }
+  .tage .symbol { width: 30px; height: 30px; }
 }
 
 /* Fehler */

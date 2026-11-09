@@ -8,12 +8,16 @@ Live: **https://weather.slxt.org**
 
 ## Was die Seite zeigt
 
-- **Jetzt:** Temperatur, gefühlte Temperatur, Wetterlage, Wind mit Richtung, Böen, Luftfeuchte, Niederschlag,
-  Bewölkung, Luftdruck, UV-Index und Sonnenauf- und -untergang.
-- **24 Stunden:** Temperatur, Symbol und Regenwahrscheinlichkeit pro Stunde, seitlich scrollbar. Ein Hinweis
-  erscheint, wenn in den nächsten Stunden Regen wahrscheinlich ist.
-- **14 Tage:** Tiefst- und Höchstwert mit Balken über alle 14 Tage (Farbe nach Temperatur), Regenwahrscheinlichkeit,
-  Regenmenge und Wind. Ab Tag 8 ist die Liste als „unsicherer“ markiert.
+Aufgebaut wie die Wetter-App (Apple HIG: Hierarchie von oben nach unten, Module, progressive Offenlegung):
+
+- **Oben, direkt auf dem Himmel:** Ort, Temperatur groß, Wetterlage mit Symbol, Höchst- und Tiefstwert.
+- **24 Stunden:** ein Satz zur Lage („Klar bis 15 Uhr, ab 16 Uhr bewölkt.“), darunter Stunde, Symbol,
+  Regenwahrscheinlichkeit ab 20 % und Temperatur, seitlich scrollbar. „Jetzt“ zeigt die aktuellen Werte.
+- **14 Tage:** Wochentag, Symbol mit Regenwahrscheinlichkeit, Tiefst-/Höchstwert mit Balken über alle 14 Tage
+  (Farbe nach Temperatur); heute mit Punkt für die aktuelle Temperatur. Jede Zeile klappt auf (Regenmenge, Wind
+  und Böen, Sonnenauf-/-untergang, UV). Ab Tag 8 als „unsicherer“ abgetrennt.
+- **Details als Kacheln:** Gefühlt, Wind, Niederschlag, Luftfeuchte, UV-Index, Sonnenauf- bzw. -untergang,
+  Bewölkung, Luftdruck – je mit kurzer Erklärung.
 - **Ort wählbar:** Standard Graz, Suche nach Städten oder „Mein Standort“. Die Wahl bleibt nur im Browser.
 - Hell/Dunkel-Schalter wie auf allen slxt-Seiten (Standard dunkel), Sternenhimmel im Dunkeln.
 
